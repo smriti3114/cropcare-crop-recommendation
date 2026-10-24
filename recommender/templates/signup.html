@@ -1,0 +1,743 @@
+```html
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+
+<style>
+    .signup-page {
+        --signup-green: #205b35;
+        --signup-dark: #143d28;
+        --signup-accent: #cce981;
+        padding: 35px 0;
+        color: #243b2c;
+    }
+
+    .signup-card {
+        overflow: hidden;
+        border: 1px solid #e4ebdf;
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 20px 60px rgba(25, 65, 34, .10);
+    }
+
+    .signup-visual {
+        position: relative;
+        min-height: 720px;
+        height: 100%;
+        overflow: hidden;
+        background: var(--signup-dark);
+        isolation: isolate;
+    }
+
+    .signup-visual img {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        transition: transform .7s ease;
+    }
+
+    .signup-visual:hover img {
+        transform: scale(1.035);
+    }
+
+    .signup-visual::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+            180deg,
+            rgba(12, 40, 24, .04) 0%,
+            rgba(12, 40, 24, .30) 38%,
+            rgba(12, 40, 24, .95) 100%
+        );
+    }
+
+    .signup-visual-content {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 38px;
+        color: white;
+    }
+
+    .signup-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 30px;
+        background: rgba(255,255,255,.12);
+        color: #e4f5c8;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .signup-visual-content h2 {
+        font-size: clamp(2rem, 3.3vw, 2.8rem);
+        line-height: 1.15;
+        letter-spacing: -1px;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .signup-visual-content h2 span {
+        color: var(--signup-accent);
+    }
+
+    .signup-visual-content > p {
+        max-width: 380px;
+        color: rgba(255,255,255,.79);
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 25px;
+    }
+
+    .signup-benefit {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-top: 13px;
+        color: rgba(255,255,255,.92);
+        font-size: 13px;
+    }
+
+    .signup-benefit i {
+        color: var(--signup-accent);
+        font-size: 16px;
+    }
+
+    .signup-form-panel {
+        padding: clamp(26px, 3.2vw, 43px);
+    }
+
+    .signup-brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 28px;
+    }
+
+    .signup-brand-icon {
+        width: 45px;
+        height: 45px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: #e8f2df;
+        color: var(--signup-green);
+        font-size: 21px;
+    }
+
+    .signup-brand-name {
+        margin: 0;
+        color: var(--signup-dark);
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .signup-brand-caption {
+        margin-top: 3px;
+        color: #819083;
+        font-size: 11px;
+    }
+
+    .signup-eyebrow {
+        margin-bottom: 9px;
+        color: #568044;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .signup-heading {
+        margin-bottom: 9px;
+        color: #1b3925;
+        font-size: clamp(1.8rem, 2.7vw, 2.25rem);
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .signup-subtitle {
+        margin-bottom: 25px;
+        color: #778479;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .signup-label {
+        margin-bottom: 7px;
+        color: #304538;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .signup-input-group {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #dfe7dc;
+        border-radius: 10px;
+        background: #fbfcfa;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .signup-input-group:focus-within {
+        border-color: #639b54;
+        box-shadow: 0 0 0 4px rgba(80,139,64,.10);
+    }
+
+    .signup-input-icon {
+        display: grid;
+        flex-shrink: 0;
+        width: 40px;
+        place-items: center;
+        color: #829181;
+    }
+
+    .signup-input-group .form-control {
+        min-width: 0;
+        min-height: 43px;
+        padding: 10px 8px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        font-size: 12px;
+    }
+
+    .signup-input-group .form-control:focus {
+        background: transparent;
+    }
+
+    .signup-input-group .form-control::placeholder {
+        color: #a2aca2;
+    }
+
+    .signup-password-toggle {
+        align-self: stretch;
+        padding: 0 12px;
+        border: 0;
+        background: transparent;
+        color: #788579;
+    }
+
+    .signup-password-toggle:hover {
+        color: var(--signup-green);
+    }
+
+    .signup-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 48px;
+        margin-top: 20px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--signup-green);
+        color: white;
+        font-weight: 700;
+        transition: background .2s, transform .2s;
+    }
+
+    .signup-submit:hover {
+        background: var(--signup-dark);
+        transform: translateY(-1px);
+    }
+
+    .signup-terms {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 17px;
+        color: #718073;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .signup-terms .form-check-input {
+        flex-shrink: 0;
+        margin-top: 4px;
+        cursor: pointer;
+    }
+
+    .signup-terms a {
+        color: var(--signup-green);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .signup-terms a:hover {
+        text-decoration: underline;
+    }
+
+    .signup-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 23px 0 18px;
+        color: #9aa59a;
+        font-size: 10px;
+    }
+
+    .signup-divider::before,
+    .signup-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #e8ece5;
+    }
+
+    .signup-login-prompt {
+        text-align: center;
+        color: #788579;
+        font-size: 12px;
+    }
+
+    .signup-login-prompt a {
+        margin-left: 4px;
+        color: var(--signup-green);
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+    .signup-login-prompt a:hover {
+        text-decoration: underline;
+    }
+
+    .signup-security {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        margin-top: 23px;
+        color: #879287;
+        font-size: 10px;
+    }
+
+    .signup-security i {
+        color: #53854b;
+    }
+
+    @media (max-width: 767.98px) {
+        .signup-page {
+            padding: 18px 0;
+        }
+
+        .signup-card {
+            border-radius: 18px;
+        }
+
+        .signup-form-panel {
+            padding: 28px 22px;
+        }
+
+        .signup-brand {
+            margin-bottom: 23px;
+        }
+    }
+</style>
+
+<div class="container signup-page">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11">
+
+            <div class="signup-card">
+                <div class="row g-0">
+
+                    <!-- LEFT: AGRICULTURAL VISUAL -->
+                    <div class="col-md-5 d-none d-md-block">
+                        <div class="signup-visual">
+
+                            <img
+                                src="{% static 'images/carousel3.png' %}"
+                                alt="Agricultural fields and crop cultivation"
+                            >
+
+                            <div class="signup-visual-content">
+
+                                <div class="signup-badge">
+                                    <i class="fa-solid fa-seedling"></i>
+                                    GROW WITH CONFIDENCE
+                                </div>
+
+                                <h2>
+                                    Your journey to<br>
+                                    <span>smarter farming.</span>
+                                </h2>
+
+                                <p>
+                                    Create your account to access machine-learning
+                                    crop recommendations, save results and keep
+                                    your farming insights organized.
+                                </p>
+
+                                <div class="signup-benefit">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    Personalized user account
+                                </div>
+
+                                <div class="signup-benefit">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    Quick soil-based crop predictions
+                                </div>
+
+                                <div class="signup-benefit">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    Convenient prediction history
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: SIGNUP FORM -->
+                    <div class="col-md-7">
+                        <div class="signup-form-panel">
+
+                            <div class="signup-brand">
+                                <div class="signup-brand-icon">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+
+                                <div>
+                                    <p class="signup-brand-name">
+                                        Crop Recommender
+                                    </p>
+                                    <div class="signup-brand-caption">
+                                        Intelligent farming solutions
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="signup-eyebrow">Get started today</div>
+
+                            <h1 class="signup-heading">Create your account</h1>
+
+                            <p class="signup-subtitle">
+                                Join the platform and start exploring
+                                data-driven crop recommendations.
+                            </p>
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                                         role="alert">
+                                        {{ message }}
+                                        <button type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post" id="signupForm">
+                                {% csrf_token %}
+
+                                <div class="row g-3">
+
+                                    <!-- FULL NAME -->
+                                    <div class="col-12">
+                                        <label for="name"
+                                               class="form-label signup-label">
+                                            Full name
+                                        </label>
+
+                                        <div class="signup-input-group">
+                                            <span class="signup-input-icon">
+                                                <i class="fa-regular fa-user"></i>
+                                            </span>
+
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                id="name"
+                                                class="form-control"
+                                                placeholder="Enter your full name"
+                                                autocomplete="name"
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- CONTACT NUMBER -->
+                                    <div class="col-12">
+                                        <label for="contact"
+                                               class="form-label signup-label">
+                                            Contact number
+                                        </label>
+
+                                        <div class="signup-input-group">
+                                            <span class="signup-input-icon">
+                                                <i class="fa-solid fa-phone"></i>
+                                            </span>
+
+                                            <input
+                                                type="tel"
+                                                name="contact"
+                                                id="contact"
+                                                class="form-control"
+                                                placeholder="Enter your phone number"
+                                                autocomplete="tel"
+                                                inputmode="tel"
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- EMAIL -->
+                                    <div class="col-12">
+                                        <label for="email"
+                                               class="form-label signup-label">
+                                            Email address
+                                        </label>
+
+                                        <div class="signup-input-group">
+                                            <span class="signup-input-icon">
+                                                <i class="fa-regular fa-envelope"></i>
+                                            </span>
+
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                id="email"
+                                                class="form-control"
+                                                placeholder="you@example.com"
+                                                autocomplete="email"
+                                                required
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- PASSWORD -->
+                                    <div class="col-12">
+                                        <label for="pwd1"
+                                               class="form-label signup-label">
+                                            Password
+                                        </label>
+
+                                        <div class="signup-input-group">
+                                            <span class="signup-input-icon">
+                                                <i class="fa-solid fa-lock"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                id="pwd1"
+                                                class="form-control"
+                                                placeholder="Create a password"
+                                                autocomplete="new-password"
+                                                minlength="6"
+                                                required
+                                            >
+
+                                            <button
+                                                class="signup-password-toggle"
+                                                type="button"
+                                                data-password-target="pwd1"
+                                                aria-label="Show password"
+                                                aria-pressed="false"
+                                            >
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+
+                                        <small class="text-muted"
+                                               style="font-size: 10px;">
+                                            Use at least 6 characters.
+                                        </small>
+                                    </div>
+
+                                    <!-- CONFIRM PASSWORD -->
+                                    <div class="col-12">
+                                        <label for="pwd2"
+                                               class="form-label signup-label">
+                                            Confirm password
+                                        </label>
+
+                                        <div class="signup-input-group">
+                                            <span class="signup-input-icon">
+                                                <i class="fa-solid fa-shield-halved"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                id="pwd2"
+                                                class="form-control"
+                                                placeholder="Re-enter your password"
+                                                autocomplete="new-password"
+                                                minlength="6"
+                                                required
+                                            >
+
+                                            <button
+                                                class="signup-password-toggle"
+                                                type="button"
+                                                data-password-target="pwd2"
+                                                aria-label="Show password"
+                                                aria-pressed="false"
+                                            >
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                        </div>
+
+                                        <small id="passwordFeedback"
+                                               class="d-none mt-1"
+                                               aria-live="polite"></small>
+                                    </div>
+
+                                </div>
+
+                                <!-- TERMS -->
+                                <div class="signup-terms">
+                                    <input
+                                        type="checkbox"
+                                        id="agree"
+                                        name="agree"
+                                        class="form-check-input"
+                                        required
+                                    >
+
+                                    <label for="agree">
+                                        I agree to the
+                                        <a href="#" id="termsLink">Terms</a>
+                                        and
+                                        <a href="#" id="privacyLink">Privacy Policy</a>.
+                                    </label>
+                                </div>
+
+                                <!-- SUBMIT -->
+                                <button
+                                    class="signup-submit"
+                                    type="submit"
+                                    id="signupBtn"
+                                >
+                                    <span>Create Account</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+
+                                <div class="signup-divider">
+                                    ALREADY A MEMBER?
+                                </div>
+
+                                <div class="signup-login-prompt">
+                                    Already have an account?
+                                    <a href="{% url 'login' %}">
+                                        Sign in
+                                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+
+                            </form>
+
+                            <div class="signup-security">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Your account details are handled securely.
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("signupForm");
+    const password1 = document.getElementById("pwd1");
+    const password2 = document.getElementById("pwd2");
+    const feedback = document.getElementById("passwordFeedback");
+
+    // Show / hide both password fields.
+    document.querySelectorAll("[data-password-target]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const input = document.getElementById(
+                button.dataset.passwordTarget
+            );
+
+            const showPassword = input.type === "password";
+            input.type = showPassword ? "text" : "password";
+
+            button.innerHTML = showPassword
+                ? '<i class="fa-regular fa-eye-slash"></i>'
+                : '<i class="fa-regular fa-eye"></i>';
+
+            button.setAttribute(
+                "aria-label",
+                showPassword ? "Hide password" : "Show password"
+            );
+
+            button.setAttribute("aria-pressed", String(showPassword));
+        });
+    });
+
+    // Check whether both passwords match.
+    function checkPasswords() {
+        if (!password2.value) {
+            feedback.textContent = "";
+            feedback.className = "d-none mt-1";
+            password2.setCustomValidity("");
+            return true;
+        }
+
+        const matches = password1.value === password2.value;
+
+        feedback.textContent = matches
+            ? "Passwords match."
+            : "Passwords do not match.";
+
+        feedback.className = matches
+            ? "d-block mt-1 text-success"
+            : "d-block mt-1 text-danger";
+
+        password2.setCustomValidity(
+            matches ? "" : "Passwords do not match."
+        );
+
+        return matches;
+    }
+
+    password1.addEventListener("input", checkPasswords);
+    password2.addEventListener("input", checkPasswords);
+
+    form.addEventListener("submit", function (event) {
+        if (!checkPasswords()) {
+            event.preventDefault();
+            password2.reportValidity();
+            password2.focus();
+        }
+    });
+
+    // Prevent placeholder policy links from jumping to the page top.
+    // Replace these with your actual Terms and Privacy Policy URLs.
+    document.getElementById("termsLink").addEventListener("click", function (event) {
+        event.preventDefault();
+    });
+
+    document.getElementById("privacyLink").addEventListener("click", function (event) {
+        event.preventDefault();
+    });
+});
+</script>
+
+{% endblock %}
+```

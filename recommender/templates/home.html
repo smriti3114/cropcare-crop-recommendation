@@ -1,0 +1,629 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Smart Crop Recommendation{% endblock %}
+
+{% block content %}
+
+<style>
+    :root {
+        --agri-green: #1e5631;
+        --agri-dark: #123b26;
+        --agri-light: #f3f7ef;
+        --agri-accent: #c9e86b;
+        --agri-muted: #6b7c70;
+    }
+
+    body {
+        background: #f7f9f5;
+    }
+
+    .agri-home {
+        color: var(--agri-dark);
+        overflow: hidden;
+    }
+
+    .hero-section {
+        position: relative;
+        min-height: 510px;
+        margin-top: 28px;
+        border-radius: 28px;
+        overflow: hidden;
+        background: var(--agri-dark);
+        isolation: isolate;
+    }
+
+    .hero-background {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 55%;
+    }
+
+    .hero-section::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(
+            90deg,
+            rgba(10, 43, 27, 0.96) 0%,
+            rgba(14, 55, 32, 0.88) 43%,
+            rgba(14, 55, 32, 0.35) 100%
+        );
+    }
+
+    .hero-content {
+        padding: 65px 48px 48px;
+        color: white;
+        max-width: 750px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 14px;
+        border: 1px solid rgba(255,255,255,.23);
+        background: rgba(255,255,255,.10);
+        border-radius: 50px;
+        color: #e2f4c7;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-bottom: 25px;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4.25rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -2px;
+        margin-bottom: 22px;
+    }
+
+    .hero-title span {
+        color: var(--agri-accent);
+    }
+
+    .hero-description {
+        color: rgba(255,255,255,.78);
+        font-size: 17px;
+        line-height: 1.8;
+        max-width: 540px;
+        margin-bottom: 28px;
+    }
+
+    .btn-agri-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 13px 21px;
+        border-radius: 10px;
+        border: 1px solid var(--agri-accent);
+        background: var(--agri-accent);
+        color: #193b20;
+        text-decoration: none;
+        font-weight: 700;
+        transition: .25s ease;
+    }
+
+    .btn-agri-primary:hover {
+        background: #d9f39a;
+        border-color: #d9f39a;
+        color: #193b20;
+        transform: translateY(-2px);
+    }
+
+    .btn-agri-outline {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 13px 20px;
+        border: 1px solid rgba(255,255,255,.55);
+        border-radius: 10px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        transition: .25s ease;
+    }
+
+    .btn-agri-outline:hover {
+        background: white;
+        color: var(--agri-dark);
+    }
+
+    .hero-trust {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 25px;
+        color: rgba(255,255,255,.76);
+        font-size: 13px;
+    }
+
+    .hero-trust i {
+        color: var(--agri-accent);
+    }
+
+    .hero-bottom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 35px;
+        margin-top: 38px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255,255,255,.2);
+    }
+
+    .hero-stat {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .hero-stat-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(255,255,255,.12);
+        color: var(--agri-accent);
+        font-size: 18px;
+    }
+
+    .hero-stat strong {
+        display: block;
+        font-size: 23px;
+        line-height: 1.2;
+        color: white;
+    }
+
+    .hero-stat small {
+        color: rgba(255,255,255,.7);
+        font-size: 12px;
+    }
+
+    .section-heading {
+        margin-top: 65px;
+        margin-bottom: 27px;
+    }
+
+    .section-eyebrow {
+        color: #53813c;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .section-heading h2 {
+        font-size: clamp(1.7rem, 3vw, 2.35rem);
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+    }
+
+    .section-heading p {
+        color: var(--agri-muted);
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .feature-card {
+        height: 100%;
+        padding: 27px;
+        background: white;
+        border: 1px solid #e8eee4;
+        border-radius: 19px;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(31, 71, 37, .09);
+    }
+
+    .feature-icon {
+        width: 53px;
+        height: 53px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        font-size: 21px;
+        margin-bottom: 22px;
+    }
+
+    .feature-icon.green {
+        color: #28643b;
+        background: #e7f3df;
+    }
+
+    .feature-icon.gold {
+        color: #92651a;
+        background: #fff2d5;
+    }
+
+    .feature-icon.blue {
+        color: #326d83;
+        background: #e2f1f6;
+    }
+
+    .feature-card h3 {
+        font-size: 18px;
+        font-weight: 750;
+        margin-bottom: 12px;
+    }
+
+    .feature-card p {
+        color: var(--agri-muted);
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 18px;
+    }
+
+    .feature-link {
+        color: #347342;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .feature-link:hover {
+        color: #193b20;
+    }
+
+    .bottom-cta {
+        margin-top: 55px;
+        margin-bottom: 45px;
+        padding: 32px;
+        border-radius: 22px;
+        background: #eaf2e4;
+        border: 1px solid #dce8d4;
+    }
+
+    .bottom-cta h3 {
+        font-size: 23px;
+        font-weight: 800;
+        margin-bottom: 9px;
+    }
+
+    .bottom-cta p {
+        color: var(--agri-muted);
+        margin-bottom: 0;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: auto;
+            border-radius: 20px;
+            background: #123b26;
+        }
+
+        .hero-section::before {
+            background: linear-gradient(
+                90deg,
+                rgba(10,43,27,.94),
+                rgba(10,43,27,.75)
+            );
+        }
+
+        .hero-content {
+            padding: 40px 24px 30px;
+        }
+
+        .hero-title {
+            letter-spacing: -1px;
+        }
+
+        .hero-description {
+            font-size: 15px;
+        }
+
+        .hero-bottom {
+            gap: 20px;
+        }
+
+        .section-heading {
+            margin-top: 45px;
+        }
+
+        .bottom-cta {
+            padding: 24px;
+        }
+    }
+</style>
+
+<div class="container agri-home">
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+
+        <img
+            src="{% static 'images/about.png' %}"
+            alt="Farmer working in a crop field"
+            class="hero-background"
+        >
+
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                <i class="fa-solid fa-seedling"></i>
+                SMART AGRICULTURE PLATFORM
+            </div>
+
+            <h1 class="hero-title">
+                Better crops.<br>
+                <span>Smarter decisions.</span>
+            </h1>
+
+            <p class="hero-description">
+                Discover the right crop for your land using soil nutrients
+                and weather conditions. Get data-driven recommendations
+                to make more informed farming decisions.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+
+                {% if user.is_authenticated and user.is_staff %}
+
+                    <a href="{% url 'admin_dashboard' %}"
+                       class="btn-agri-primary">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Open Dashboard
+                    </a>
+
+                    <a href="{% url 'admin:index' %}"
+                       class="btn-agri-outline">
+                        <i class="fa-solid fa-screwdriver-wrench"></i>
+                        Manage Site
+                    </a>
+
+                {% elif user.is_authenticated %}
+
+                    <a href="{% url 'predict' %}"
+                       class="btn-agri-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        Recommend a Crop
+                    </a>
+
+                    <a href="{% url 'history' %}"
+                       class="btn-agri-outline">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        My History
+                    </a>
+
+                {% else %}
+
+                    <a href="{% url 'login' %}"
+                       class="btn-agri-primary">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Get Started
+                    </a>
+
+                    <a href="{% url 'signup' %}"
+                       class="btn-agri-outline">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Create Account
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+            <div class="hero-trust">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Personalized predictions and private user history</span>
+            </div>
+
+            <!-- PLATFORM STATISTICS -->
+            <div class="hero-bottom">
+
+                <div class="hero-stat">
+                    <div class="hero-stat-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <strong>{{ total_users|default:"5" }}</strong>
+                        <small>Registered users</small>
+                    </div>
+                </div>
+
+                <div class="hero-stat">
+                    <div class="hero-stat-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <strong>{{ total_predictions|default:"10" }}</strong>
+                        <small>Crop predictions</small>
+                    </div>
+                </div>
+
+                <div class="hero-stat">
+                    <div class="hero-stat-icon">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <div>
+                        <strong>ML</strong>
+                        <small>Data-driven insights</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section>
+
+        <div class="section-heading">
+            <div class="section-eyebrow">How it helps</div>
+            <h2>Everything you need to grow smarter</h2>
+            <p>
+                Turn your field conditions into practical crop recommendations.
+            </p>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+
+                    <div class="feature-icon green">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+
+                    <h3>Intelligent Crop Selection</h3>
+
+                    <p>
+                        Use nitrogen, phosphorus, potassium, soil pH,
+                        temperature, humidity and rainfall to identify
+                        a suitable crop from your trained ML model.
+                    </p>
+
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'predict' %}" class="feature-link">
+                            Try crop prediction
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% elif not user.is_authenticated %}
+                        <a href="{% url 'login' %}" class="feature-link">
+                            Sign in to get started
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'admin_dashboard' %}" class="feature-link">
+                            View dashboard
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+
+                    <div class="feature-icon gold">
+                        <i class="fa-solid fa-cloud-sun"></i>
+                    </div>
+
+                    <h3>Soil & Weather Analysis</h3>
+
+                    <p>
+                        Evaluate important soil nutrient levels and
+                        environmental parameters together to generate
+                        a recommendation based on the model's training.
+                    </p>
+
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'predict' %}" class="feature-link">
+                            Analyse field conditions
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="feature-link">
+                            Explore the platform
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+
+                    <div class="feature-icon blue">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+
+                    <h3>Your Prediction History</h3>
+
+                    <p>
+                        Return to previous recommendations, review saved
+                        results and keep your crop-planning information
+                        organized in your account.
+                    </p>
+
+                    {% if user.is_authenticated and not user.is_staff %}
+                        <a href="{% url 'history' %}" class="feature-link">
+                            View my history
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% elif user.is_authenticated and user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}" class="feature-link">
+                            Manage platform
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'signup' %}" class="feature-link">
+                            Create your account
+                            <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- BOTTOM CALL TO ACTION -->
+    <section class="bottom-cta">
+
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-8">
+                <h3>Make your next farming decision count.</h3>
+                <p>
+                    Start with your soil and weather data.
+                    Get a crop recommendation in just a few steps.
+                </p>
+            </div>
+
+            <div class="col-lg-4 text-lg-end">
+
+                {% if user.is_authenticated and user.is_staff %}
+
+                    <a href="{% url 'admin_dashboard' %}"
+                       class="btn-agri-primary">
+                        Go to Dashboard
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                {% elif user.is_authenticated %}
+
+                    <a href="{% url 'predict' %}"
+                       class="btn-agri-primary">
+                        Start Prediction
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                {% else %}
+
+                    <a href="{% url 'signup' %}"
+                       class="btn-agri-primary">
+                        Join the Platform
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,431 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+<style>
+    .profile-page {
+        max-width: 1100px;
+        margin: 30px auto 55px;
+    }
+
+    .profile-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #123d27, #207547, #3b9560);
+        border-radius: 24px;
+        padding: 35px;
+        color: white;
+        margin-bottom: 28px;
+    }
+
+    .profile-hero::after {
+        content: "";
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        right: -65px;
+        top: -90px;
+        border: 35px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+    .profile-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .profile-hero-icon {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.15);
+        font-size: 28px;
+        margin-bottom: 18px;
+    }
+
+    .profile-card {
+        background: #fff;
+        border: 1px solid #e3eee5;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(24, 75, 43, 0.06);
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .profile-card-header {
+        padding: 24px 26px 18px;
+        border-bottom: 1px solid #edf3ee;
+    }
+
+    .profile-card-body {
+        padding: 26px;
+    }
+
+    .profile-section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9f6ec;
+        color: #247744;
+        font-size: 18px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .profile-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #304b39;
+        margin-bottom: 8px;
+    }
+
+    .profile-input-group .input-group-text {
+        background: #f4f9f5;
+        border-color: #dce9df;
+        color: #398353;
+        padding: 12px 15px;
+    }
+
+    .profile-input-group .form-control {
+        border-color: #dce9df;
+        padding: 12px 14px;
+        min-height: 48px;
+        background: #fcfefc;
+    }
+
+    .profile-input-group .form-control:focus {
+        border-color: #40975e;
+        box-shadow: 0 0 0 0.2rem rgba(46, 139, 76, 0.12);
+        background: #fff;
+    }
+
+    .profile-input-group .input-group-text:first-child {
+        border-radius: 12px 0 0 12px;
+    }
+
+    .profile-input-group .form-control {
+        border-radius: 0 12px 12px 0;
+    }
+
+    .email-box {
+        background: #f5faf6;
+        border: 1px solid #e0ece2;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    .email-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #e4f3e7;
+        color: #267747;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .profile-save-btn {
+        background: linear-gradient(135deg, #247844, #369858);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 13px 20px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .profile-save-btn:hover {
+        color: #fff;
+        background: linear-gradient(135deg, #195d33, #287d47);
+        transform: translateY(-1px);
+        box-shadow: 0 7px 16px rgba(35, 119, 66, 0.18);
+    }
+
+    .profile-side-card {
+        background: linear-gradient(160deg, #f0f8f0, #ffffff);
+        border: 1px solid #e0ede2;
+        border-radius: 20px;
+        padding: 26px;
+        height: 100%;
+    }
+
+    .profile-avatar {
+        width: 78px;
+        height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #267847, #62ae70);
+        border-radius: 24px;
+        color: white;
+        font-size: 30px;
+        margin-bottom: 18px;
+        box-shadow: 0 8px 18px rgba(39, 120, 69, 0.17);
+    }
+
+    .profile-tip {
+        display: flex;
+        gap: 12px;
+        padding: 14px 0;
+        border-bottom: 1px solid #e3ede4;
+    }
+
+    .profile-tip:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .profile-tip-icon {
+        color: #2e8650;
+        margin-top: 3px;
+    }
+
+    .profile-muted {
+        color: #718174;
+        font-size: 13px;
+    }
+
+    @media (max-width: 767px) {
+        .profile-page {
+            margin-top: 18px;
+        }
+
+        .profile-hero {
+            padding: 25px;
+            border-radius: 19px;
+        }
+
+        .profile-card-body,
+        .profile-card-header,
+        .profile-side-card {
+            padding: 21px;
+        }
+    }
+</style>
+
+<div class="container profile-page">
+
+    <!-- Page Header -->
+    <section class="profile-hero">
+        <div class="profile-hero-content">
+            <div class="profile-hero-icon">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+
+            <p class="text-uppercase mb-2"
+               style="letter-spacing: 2px; font-size: 12px; opacity: 0.8;">
+                Account Settings
+            </p>
+
+            <h1 class="fw-bold mb-2">My Profile</h1>
+
+            <p class="mb-0" style="max-width: 550px; opacity: 0.9;">
+                Keep your personal details up to date and manage your
+                account information in one place.
+            </p>
+        </div>
+    </section>
+
+    <div class="row g-4">
+
+        <!-- Edit Profile Form -->
+        <div class="col-lg-7">
+            <div class="profile-card">
+
+                <div class="profile-card-header">
+                    <div class="d-flex align-items-center">
+                        <div class="profile-section-icon">
+                            <i class="fa-solid fa-user-pen"></i>
+                        </div>
+
+                        <div>
+                            <h4 class="fw-bold mb-1">Edit Your Details</h4>
+                            <p class="profile-muted mb-0">
+                                Update your name and contact information.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card-body">
+                    <form method="post" id="profileForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="profileName" class="profile-label">
+                                Full Name
+                            </label>
+
+                            <div class="input-group profile-input-group">
+                                <span class="input-group-text">
+                                    <i class="fa-regular fa-user"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    id="profileName"
+                                    name="name"
+                                    class="form-control"
+                                    placeholder="Enter your full name"
+                                    value="{{ request.user.first_name }}{% if request.user.last_name %} {{ request.user.last_name }}{% endif %}"
+                                    autocomplete="name"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="profileContact" class="profile-label">
+                                Contact Number
+                            </label>
+
+                            <div class="input-group profile-input-group">
+                                <span class="input-group-text">
+                                    <i class="fa-solid fa-phone"></i>
+                                </span>
+
+                                <input
+                                    type="tel"
+                                    id="profileContact"
+                                    name="contact"
+                                    class="form-control"
+                                    placeholder="Enter your contact number"
+                                    value="{{ profile.contact|default_if_none:'' }}"
+                                    autocomplete="tel"
+                                >
+                            </div>
+
+                            <small class="profile-muted d-block mt-2">
+                                Make sure your contact information is correct.
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="profile-label">Email / Username</label>
+
+                            <div class="email-box d-flex align-items-center gap-3">
+                                <div class="email-icon">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+
+                                <div class="overflow-hidden">
+                                    <div class="fw-semibold text-dark text-break">
+                                        {{ request.user.username }}
+                                    </div>
+                                    <small class="profile-muted">
+                                        Your registered account identifier
+                                    </small>
+                                </div>
+
+                                <span class="ms-auto text-success">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            class="btn profile-save-btn w-100 mt-2"
+                            type="submit"
+                            id="saveProfileBtn"
+                        >
+                            <i class="fa-solid fa-floppy-disk me-2"></i>
+                            Save Changes
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Summary / Helpful Information -->
+        <div class="col-lg-5">
+            <div class="profile-side-card">
+
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+
+                <p class="text-uppercase profile-muted fw-semibold mb-2"
+                   style="letter-spacing: 1.5px;">
+                    Your Account
+                </p>
+
+                <h4 class="fw-bold mb-2">
+                    {% if request.user.first_name %}
+                        {{ request.user.first_name }}
+                        {% if request.user.last_name %}{{ request.user.last_name }}{% endif %}
+                    {% else %}
+                        CropCare Member
+                    {% endif %}
+                </h4>
+
+                <p class="text-secondary mb-4">
+                    Your profile helps keep your crop recommendation
+                    experience organized and personalized.
+                </p>
+
+                <hr style="border-color: #dfeae1;">
+
+                <h6 class="fw-bold mb-3">Profile Checklist</h6>
+
+                <div class="profile-tip">
+                    <i class="fa-solid fa-circle-check profile-tip-icon"></i>
+                    <div>
+                        <div class="fw-semibold">Personal information</div>
+                        <small class="profile-muted">
+                            Use your correct full name.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="profile-tip">
+                    <i class="fa-solid fa-phone profile-tip-icon"></i>
+                    <div>
+                        <div class="fw-semibold">Contact details</div>
+                        <small class="profile-muted">
+                            Keep your contact number current.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="profile-tip">
+                    <i class="fa-solid fa-shield-halved profile-tip-icon"></i>
+                    <div>
+                        <div class="fw-semibold">Account security</div>
+                        <small class="profile-muted">
+                            Never share your password with anyone.
+                        </small>
+                    </div>
+                </div>
+
+                <a href="{% url 'change_password' %}"
+                   class="btn btn-outline-success w-100 rounded-3 mt-4 py-2">
+                    <i class="fa-solid fa-key me-2"></i>
+                    Change Password
+                </a>
+
+                <a href="{% url 'user_history' %}"
+                   class="btn btn-light w-100 rounded-3 mt-2 py-2">
+                    <i class="fa-solid fa-clock-rotate-left me-2"></i>
+                    View Prediction History
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

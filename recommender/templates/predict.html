@@ -1,0 +1,981 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crop Prediction{% endblock %}
+
+{% block content %}
+
+<style>
+    .predict-page {
+        --predict-green: #205b35;
+        --predict-dark: #143d28;
+        --predict-accent: #cce981;
+        --predict-muted: #738174;
+        color: #263b2d;
+        padding-bottom: 35px;
+    }
+
+    .predict-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 34px 36px;
+        margin: 25px 0 28px;
+        border-radius: 22px;
+        color: white;
+        background: linear-gradient(120deg, #123b26, #27663b);
+    }
+
+    .predict-hero::after {
+        content: "\f4d8";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        right: 35px;
+        top: -30px;
+        font-size: 175px;
+        color: rgba(255,255,255,.055);
+        pointer-events: none;
+    }
+
+    .predict-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--predict-accent);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+    }
+
+    .predict-hero h1 {
+        font-size: clamp(1.8rem, 4vw, 2.7rem);
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 10px;
+    }
+
+    .predict-hero p {
+        max-width: 650px;
+        color: rgba(255,255,255,.75);
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 0;
+    }
+
+    .predict-step {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 20px;
+        color: rgba(255,255,255,.85);
+        font-size: 12px;
+        flex-wrap: wrap;
+    }
+
+    .predict-step span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .predict-step i {
+        color: var(--predict-accent);
+    }
+
+    .predict-card {
+        height: 100%;
+        overflow: hidden;
+        border: 1px solid #e5ebdf;
+        border-radius: 19px;
+        background: white;
+        box-shadow: 0 8px 28px rgba(30,70,38,.045);
+    }
+
+    .predict-card-header {
+        padding: 24px 26px 18px;
+        border-bottom: 1px solid #edf0e9;
+    }
+
+    .predict-heading-icon {
+        display: grid;
+        place-items: center;
+        width: 45px;
+        height: 45px;
+        flex-shrink: 0;
+        border-radius: 13px;
+        background: #e8f2df;
+        color: var(--predict-green);
+        font-size: 19px;
+    }
+
+    .predict-card-header h2 {
+        margin: 0 0 5px;
+        color: #203b29;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .predict-card-header p {
+        margin: 0;
+        color: var(--predict-muted);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .predict-card-body {
+        padding: 25px 26px;
+    }
+
+    .input-section-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 17px;
+        color: #426a40;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+    }
+
+    .input-section-title i {
+        font-size: 15px;
+    }
+
+    .predict-field {
+        margin-bottom: 19px;
+    }
+
+    .predict-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: #344c3b;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .predict-label .field-unit {
+        color: #8b988b;
+        font-size: 10px;
+        font-weight: 500;
+    }
+
+    .predict-input-wrap {
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        border: 1px solid #dfe7dc;
+        border-radius: 10px;
+        background: #fbfcfa;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .predict-input-wrap:focus-within {
+        border-color: #639b54;
+        box-shadow: 0 0 0 4px rgba(80,139,64,.09);
+    }
+
+    .predict-input-wrap .input-icon {
+        display: grid;
+        place-items: center;
+        width: 39px;
+        flex-shrink: 0;
+        color: #829181;
+    }
+
+    .predict-input-wrap .form-control {
+        min-width: 0;
+        min-height: 45px;
+        border: 0;
+        border-radius: 0;
+        padding: 10px 8px;
+        background: transparent;
+        box-shadow: none;
+        color: #253c2c;
+        font-size: 13px;
+    }
+
+    .predict-input-wrap .form-control:focus {
+        background: transparent;
+    }
+
+    .predict-input-wrap .form-control::placeholder {
+        color: #a2aca2;
+    }
+
+    .predict-input-wrap .input-suffix {
+        padding-right: 12px;
+        color: #899688;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .predict-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+        padding-top: 20px;
+        border-top: 1px solid #edf0e9;
+    }
+
+    .predict-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 11px 18px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 750;
+        transition: .2s ease;
+    }
+
+    .predict-btn-primary {
+        flex: 1;
+        border: 1px solid var(--predict-green);
+        background: var(--predict-green);
+        color: white;
+    }
+
+    .predict-btn-primary:hover {
+        background: var(--predict-dark);
+        border-color: var(--predict-dark);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .predict-btn-sample {
+        border: 1px solid #d8e6c9;
+        background: #f1f7e9;
+        color: #37623b;
+    }
+
+    .predict-btn-sample:hover {
+        background: #e4efd8;
+        color: #234c2e;
+    }
+
+    .predict-btn-reset {
+        border: 1px solid #eadedb;
+        background: white;
+        color: #9a5148;
+    }
+
+    .predict-btn-reset:hover {
+        background: #fff3f1;
+        color: #803a32;
+    }
+
+    .predict-note {
+        display: flex;
+        gap: 10px;
+        padding: 13px;
+        margin-top: 18px;
+        border-radius: 10px;
+        background: #f4f7f0;
+        color: #6c7c6d;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    .predict-note i {
+        margin-top: 3px;
+        color: #648d4d;
+    }
+
+    .result-card {
+        margin-top: 22px;
+        padding: 25px;
+        border: 1px solid #d7e8c9;
+        border-radius: 17px;
+        background: linear-gradient(135deg, #f0f8e9, #fbfdf8);
+    }
+
+    .result-topline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        color: #477344;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .result-crop {
+        color: #1b4c2c;
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        font-weight: 850;
+        letter-spacing: -1px;
+        overflow-wrap: anywhere;
+    }
+
+    .result-description {
+        margin-top: 8px;
+        color: #71816e;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .result-inputs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-top: 17px;
+    }
+
+    .result-chip {
+        padding: 6px 9px;
+        border: 1px solid #dce8d3;
+        border-radius: 7px;
+        background: white;
+        color: #4b6749;
+        font-size: 10px;
+    }
+
+    .side-card {
+        padding: 23px;
+        border: 1px solid #e5ebdf;
+        border-radius: 17px;
+        background: white;
+        box-shadow: 0 8px 28px rgba(30,70,38,.04);
+    }
+
+    .side-card + .side-card {
+        margin-top: 18px;
+    }
+
+    .side-card-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 17px;
+    }
+
+    .side-icon {
+        display: grid;
+        place-items: center;
+        width: 41px;
+        height: 41px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #f0f5e8;
+        color: #527c42;
+        font-size: 17px;
+    }
+
+    .side-card-heading h3 {
+        margin: 0;
+        color: #284430;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .side-card-heading p {
+        margin: 4px 0 0;
+        color: #879287;
+        font-size: 11px;
+    }
+
+    .tip-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf0e9;
+    }
+
+    .tip-item:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .tip-number {
+        display: grid;
+        place-items: center;
+        width: 25px;
+        height: 25px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        background: #edf4e6;
+        color: #49733e;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .tip-item strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #405642;
+        font-size: 12px;
+    }
+
+    .tip-item p {
+        margin: 0;
+        color: #7c897d;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    .npk-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 9px;
+    }
+
+    .npk-item {
+        padding: 13px 5px;
+        text-align: center;
+        border: 1px solid #e7eee0;
+        border-radius: 11px;
+        background: #fbfcf9;
+    }
+
+    .npk-letter {
+        color: #397245;
+        font-size: 21px;
+        font-weight: 850;
+    }
+
+    .npk-name {
+        margin-top: 4px;
+        color: #7a897b;
+        font-size: 10px;
+    }
+
+    .npk-description {
+        margin-top: 15px;
+        color: #758376;
+        font-size: 11px;
+        line-height: 1.8;
+    }
+
+    .history-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 17px;
+        padding: 13px 14px;
+        border: 1px solid #e0e9d9;
+        border-radius: 10px;
+        color: #37643b;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 750;
+        transition: .2s ease;
+    }
+
+    .history-link:hover {
+        background: #f1f7ec;
+        color: #1b4c2c;
+    }
+
+    @media (max-width: 767.98px) {
+        .predict-hero {
+            padding: 27px 22px;
+            border-radius: 17px;
+        }
+
+        .predict-hero::after {
+            right: 10px;
+            font-size: 110px;
+        }
+
+        .predict-card-header,
+        .predict-card-body {
+            padding: 20px;
+        }
+
+        .predict-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .predict-btn-primary {
+            grid-column: 1 / -1;
+            grid-row: 1;
+        }
+
+        .predict-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container predict-page">
+
+    <!-- PAGE HEADER -->
+    <section class="predict-hero">
+        <div class="predict-eyebrow">
+            <i class="fa-solid fa-leaf"></i>
+            Smart Agriculture
+        </div>
+
+        <h1>Find the right crop for your soil.</h1>
+
+        <p>
+            Enter your soil nutrient levels and local weather conditions.
+            Your machine-learning model will analyse the inputs and
+            recommend a suitable crop.
+        </p>
+
+        <div class="predict-step">
+            <span><i class="fa-solid fa-circle-check"></i> Enter field data</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span><i class="fa-solid fa-microchip"></i> ML analysis</span>
+            <i class="fa-solid fa-arrow-right"></i>
+            <span><i class="fa-solid fa-seedling"></i> Crop recommendation</span>
+        </div>
+    </section>
+
+    <div class="row g-4">
+
+        <!-- MAIN PREDICTION FORM -->
+        <div class="col-lg-8">
+
+            <div class="predict-card">
+
+                <div class="predict-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="predict-heading-icon">
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+
+                        <div>
+                            <h2>Field Parameters</h2>
+                            <p>Provide the measurements for your field.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="predict-card-body">
+
+                    <form method="post" id="predictForm">
+                        {% csrf_token %}
+
+                        <div class="input-section-title">
+                            <i class="fa-solid fa-vial"></i>
+                            Soil Nutrients
+                        </div>
+
+                        <div class="row g-3">
+
+                            {% for c in feature_order %}
+                                {% if c == "N" or c == "P" or c == "K" or c == "n" or c == "p" or c == "k" %}
+
+                                    <div class="col-md-4">
+                                        <div class="predict-field">
+
+                                            <label for="field_{{ c }}"
+                                                   class="predict-label">
+                                                {% if c == "N" or c == "n" %}
+                                                    Nitrogen (N)
+                                                {% elif c == "P" or c == "p" %}
+                                                    Phosphorus (P)
+                                                {% else %}
+                                                    Potassium (K)
+                                                {% endif %}
+                                                <span class="field-unit">kg/ha*</span>
+                                            </label>
+
+                                            <div class="predict-input-wrap">
+                                                <span class="input-icon">
+                                                    <i class="fa-solid fa-seedling"></i>
+                                                </span>
+
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    min="0"
+                                                    name="{{ c }}"
+                                                    id="field_{{ c }}"
+                                                    class="form-control"
+                                                    placeholder="Enter value"
+                                                    required
+                                                >
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="input-section-title mt-3">
+                            <i class="fa-solid fa-cloud-sun"></i>
+                            Weather & Soil Conditions
+                        </div>
+
+                        <div class="row g-3">
+
+                            {% for c in feature_order %}
+                                {% if c != "N" and c != "P" and c != "K" and c != "n" and c != "p" and c != "k" %}
+
+                                    <div class="col-md-6">
+                                        <div class="predict-field">
+
+                                            <label for="field_{{ c }}"
+                                                   class="predict-label">
+
+                                                {% if c == "temperature" %}
+                                                    Temperature
+                                                {% elif c == "humidity" %}
+                                                    Relative Humidity
+                                                {% elif c == "ph" %}
+                                                    Soil pH
+                                                {% elif c == "rainfall" %}
+                                                    Rainfall
+                                                {% else %}
+                                                    {{ c|title }}
+                                                {% endif %}
+
+                                                <span class="field-unit">
+                                                    {% if c == "temperature" %}
+                                                        °C
+                                                    {% elif c == "humidity" %}
+                                                        %
+                                                    {% elif c == "ph" %}
+                                                        0–14
+                                                    {% elif c == "rainfall" %}
+                                                        mm
+                                                    {% endif %}
+                                                </span>
+
+                                            </label>
+
+                                            <div class="predict-input-wrap">
+                                                <span class="input-icon">
+                                                    {% if c == "temperature" %}
+                                                        <i class="fa-solid fa-temperature-half"></i>
+                                                    {% elif c == "humidity" %}
+                                                        <i class="fa-solid fa-droplet"></i>
+                                                    {% elif c == "ph" %}
+                                                        <i class="fa-solid fa-flask-vial"></i>
+                                                    {% elif c == "rainfall" %}
+                                                        <i class="fa-solid fa-cloud-rain"></i>
+                                                    {% else %}
+                                                        <i class="fa-solid fa-chart-line"></i>
+                                                    {% endif %}
+                                                </span>
+
+                                                {% if c == "humidity" %}
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        min="0"
+                                                        max="100"
+                                                        name="{{ c }}"
+                                                        id="field_{{ c }}"
+                                                        class="form-control"
+                                                        placeholder="e.g. 80"
+                                                        required
+                                                    >
+
+                                                {% elif c == "ph" %}
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        min="0"
+                                                        max="14"
+                                                        name="{{ c }}"
+                                                        id="field_{{ c }}"
+                                                        class="form-control"
+                                                        placeholder="e.g. 6.5"
+                                                        required
+                                                    >
+
+                                                {% else %}
+                                                    <input
+                                                        type="number"
+                                                        step="any"
+                                                        min="0"
+                                                        name="{{ c }}"
+                                                        id="field_{{ c }}"
+                                                        class="form-control"
+                                                        placeholder="Enter value"
+                                                        required
+                                                    >
+                                                {% endif %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% endif %}
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="predict-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <div>
+                                <strong>For better recommendations:</strong>
+                                use measured soil values and local weather data
+                                where possible. Enter values in the units used
+                                by your model's training dataset.
+                            </div>
+                        </div>
+
+                        <div class="predict-actions">
+
+                            <button type="submit"
+                                    class="predict-btn predict-btn-primary"
+                                    id="predictBtn">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                Predict Crop
+                            </button>
+
+                            <button type="button"
+                                    class="predict-btn predict-btn-sample"
+                                    id="btnSample">
+                                <i class="fa-solid fa-bolt"></i>
+                                Use Sample
+                            </button>
+
+                            <button type="reset"
+                                    class="predict-btn predict-btn-reset"
+                                    id="btnReset">
+                                <i class="fa-solid fa-rotate-left"></i>
+                                Reset
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- PREDICTION RESULT -->
+            {% if result %}
+                <div class="result-card">
+
+                    <div class="result-topline">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Prediction completed
+                    </div>
+
+                    <div class="small text-muted mb-2">
+                        Recommended crop
+                    </div>
+
+                    <div class="result-crop">
+                        <i class="fa-solid fa-seedling me-2"></i>{{ result|title }}
+                    </div>
+
+                    <p class="result-description">
+                        This is the crop predicted by your trained machine-learning
+                        model for the submitted parameters. Actual suitability
+                        also depends on local field conditions and farming practices.
+                    </p>
+
+                    {% if last_data %}
+                        <div class="result-inputs">
+                            {% for k, v in last_data.items %}
+                                <span class="result-chip">
+                                    {{ k|upper }}: {{ v }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="col-lg-4">
+
+            <!-- TIPS -->
+            <div class="side-card">
+
+                <div class="side-card-heading">
+                    <div class="side-icon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h3>Input Guidelines</h3>
+                        <p>Before you make a prediction</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-number">01</div>
+                    <div>
+                        <strong>Use measured soil values</strong>
+                        <p>N, P and K should follow the units and scale of your dataset.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-number">02</div>
+                    <div>
+                        <strong>Check your pH</strong>
+                        <p>Soil pH ranges from 0 to 14. Many crops grow well around mildly acidic to neutral soil.</p>
+                    </div>
+                </div>
+
+                <div class="tip-item">
+                    <div class="tip-number">03</div>
+                    <div>
+                        <strong>Use local weather data</strong>
+                        <p>Temperature, humidity and rainfall should reflect the relevant growing conditions.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NPK EXPLANATION -->
+            <div class="side-card">
+
+                <div class="side-card-heading">
+                    <div class="side-icon">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <div>
+                        <h3>Understanding NPK</h3>
+                        <p>Three important plant nutrients</p>
+                    </div>
+                </div>
+
+                <div class="npk-grid">
+
+                    <div class="npk-item">
+                        <div class="npk-letter">N</div>
+                        <div class="npk-name">Nitrogen</div>
+                    </div>
+
+                    <div class="npk-item">
+                        <div class="npk-letter">P</div>
+                        <div class="npk-name">Phosphorus</div>
+                    </div>
+
+                    <div class="npk-item">
+                        <div class="npk-letter">K</div>
+                        <div class="npk-name">Potassium</div>
+                    </div>
+
+                </div>
+
+                <p class="npk-description">
+                    These nutrients support leaf growth, root development,
+                    energy transfer and overall plant health. Their ideal
+                    levels vary by crop and soil.
+                </p>
+
+            </div>
+
+            <!-- HISTORY LINK -->
+            <div class="side-card">
+
+                <div class="side-card-heading">
+                    <div class="side-icon">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <h3>Previous Predictions</h3>
+                        <p>Review your saved results</p>
+                    </div>
+                </div>
+
+                <p class="small text-muted mb-0" style="line-height: 1.8;">
+                    Keep track of your earlier crop recommendations
+                    and revisit the inputs you used.
+                </p>
+
+                <a href="{% url 'user_history' %}" class="history-link">
+                    <span>
+                        <i class="fa-solid fa-clock-rotate-left me-2"></i>
+                        View My History
+                    </span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById("predictForm");
+    const sampleButton = document.getElementById("btnSample");
+    const resetButton = document.getElementById("btnReset");
+
+    if (!form) return;
+
+    const inputs = form.querySelectorAll("input[name]");
+
+    // Sample values must match the feature names expected by your model.
+    const sample = {
+        N: 90,
+        P: 40,
+        K: 40,
+        n: 90,
+        p: 40,
+        k: 40,
+        temperature: 20,
+        humidity: 80,
+        ph: 7,
+        rainfall: 200
+    };
+
+    if (sampleButton) {
+        sampleButton.addEventListener("click", function () {
+            inputs.forEach(function (input) {
+                if (Object.prototype.hasOwnProperty.call(sample, input.name)) {
+                    input.value = sample[input.name];
+                }
+            });
+
+            if (typeof Swal !== "undefined") {
+                Swal.fire({
+                    icon: "info",
+                    title: "Sample values filled",
+                    text: "Review the values before predicting.",
+                    confirmButtonColor: "#205b35"
+                });
+            }
+        });
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener("click", function () {
+            // Let the browser perform the native form reset.
+            setTimeout(function () {
+                form.querySelectorAll("input").forEach(function (input) {
+                    input.setCustomValidity("");
+                });
+            }, 0);
+        });
+    }
+
+    form.addEventListener("submit", function () {
+        const button = document.getElementById("predictBtn");
+
+        if (button && form.checkValidity()) {
+            button.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i> Analysing...';
+            button.disabled = true;
+        }
+    });
+
+})();
+</script>
+
+{% endblock %}

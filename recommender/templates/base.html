@@ -1,0 +1,574 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Crop Recommender{% endblock %} | CropCare</title>
+
+    <meta name="theme-color" content="#174c2d">
+    <meta name="description" content="CropCare helps farmers make informed crop decisions using soil nutrients and weather conditions.">
+
+    <!-- Bootstrap -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css"
+        integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <!-- Existing project CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        :root {
+            --crop-primary: #247844;
+            --crop-primary-dark: #174c2d;
+            --crop-primary-light: #e9f6ec;
+            --crop-accent: #77bd78;
+            --crop-text: #243b2b;
+            --crop-muted: #718174;
+            --crop-border: #e3eee5;
+            --crop-background: #f7faf7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            background: var(--crop-background);
+            color: var(--crop-text);
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        }
+
+        /* NAVBAR */
+        .crop-navbar {
+            background: linear-gradient(
+                110deg,
+                #123d27 0%,
+                #1b6137 55%,
+                #267b45 100%
+            );
+            padding: 13px 0;
+            box-shadow: 0 4px 20px rgba(18, 61, 39, 0.13);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .crop-navbar .container {
+            gap: 15px;
+        }
+
+        .crop-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: #fff !important;
+            font-size: 21px;
+            font-weight: 750;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .crop-brand-icon {
+            width: 43px;
+            height: 43px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            color: #c5f1bb;
+            font-size: 21px;
+        }
+
+        .crop-brand small {
+            display: block;
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            margin-top: 1px;
+        }
+
+        .crop-navbar .navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 11px;
+            box-shadow: none;
+        }
+
+        .crop-navbar .navbar-toggler:focus {
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+        }
+
+        .crop-navbar .navbar-nav {
+            align-items: center;
+            gap: 4px;
+        }
+
+        .crop-navbar .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.83) !important;
+            padding: 10px 12px !important;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 550;
+            white-space: nowrap;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .crop-navbar .nav-link i {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .crop-navbar .nav-link:hover,
+        .crop-navbar .nav-link.active {
+            color: #fff !important;
+            background: rgba(255, 255, 255, 0.13);
+        }
+
+        .crop-navbar .nav-link.active {
+            box-shadow: inset 0 -2px 0 #a8e4a4;
+        }
+
+        .crop-navbar .nav-link.nav-logout {
+            color: #ffe1dc !important;
+        }
+
+        .crop-navbar .nav-link.nav-logout:hover {
+            background: rgba(255, 110, 90, 0.15);
+        }
+
+        .nav-role-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #d5f0d3;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 650;
+            letter-spacing: 0.7px;
+            margin-left: 5px;
+            white-space: nowrap;
+        }
+
+        /* MAIN CONTENT */
+        .crop-main {
+            flex: 1;
+            width: 100%;
+            padding-top: 30px;
+            padding-bottom: 45px;
+        }
+
+        /* FOOTER */
+        .crop-footer {
+            margin-top: auto;
+            background: #123d27;
+            color: rgba(255, 255, 255, 0.75);
+            padding: 25px 0;
+        }
+
+        .crop-footer-brand {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .crop-footer-brand i {
+            color: #a8e4a4;
+            margin-right: 7px;
+        }
+
+        .crop-footer p {
+            font-size: 12px;
+            margin: 6px 0 0;
+            color: rgba(255, 255, 255, 0.63);
+        }
+
+        .crop-footer-note {
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .crop-footer-note i {
+            color: #a8e4a4;
+            margin-right: 5px;
+        }
+
+        /* SHARED DESIGN CONSISTENCY */
+        .card {
+            border-color: var(--crop-border);
+            border-radius: 18px;
+        }
+
+        .btn-success {
+            background-color: var(--crop-primary);
+            border-color: var(--crop-primary);
+        }
+
+        .btn-success:hover,
+        .btn-success:focus {
+            background-color: var(--crop-primary-dark);
+            border-color: var(--crop-primary-dark);
+        }
+
+        .btn-outline-success {
+            color: var(--crop-primary);
+            border-color: var(--crop-primary);
+        }
+
+        .btn-outline-success:hover {
+            background-color: var(--crop-primary);
+            border-color: var(--crop-primary);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #40975e;
+            box-shadow: 0 0 0 0.2rem rgba(46, 139, 76, 0.12);
+        }
+
+        /* RESPONSIVE NAVIGATION */
+        @media (max-width: 1199.98px) {
+            .crop-navbar .nav-link {
+                padding: 9px 9px !important;
+                font-size: 12px;
+            }
+
+            .crop-brand {
+                font-size: 19px;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .crop-navbar .navbar-collapse {
+                padding-top: 16px;
+                margin-top: 13px;
+                border-top: 1px solid rgba(255, 255, 255, 0.15);
+            }
+
+            .crop-navbar .navbar-nav {
+                align-items: stretch;
+                gap: 4px;
+            }
+
+            .crop-navbar .nav-link {
+                width: 100%;
+                padding: 11px 13px !important;
+                font-size: 14px;
+            }
+
+            .crop-navbar .nav-link.active {
+                box-shadow: inset 3px 0 0 #a8e4a4;
+            }
+
+            .nav-role-label {
+                width: fit-content;
+                margin: 10px 0 0 12px;
+            }
+
+            .crop-main {
+                padding-top: 22px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .crop-brand {
+                font-size: 18px;
+            }
+
+            .crop-brand-icon {
+                width: 39px;
+                height: 39px;
+                border-radius: 12px;
+            }
+
+            .crop-footer-note {
+                text-align: left;
+                margin-top: 15px;
+            }
+
+            .crop-main {
+                padding-top: 18px;
+                padding-bottom: 30px;
+            }
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-expand-lg navbar-dark crop-navbar">
+        <div class="container">
+
+            <a class="navbar-brand crop-brand"
+               href="{% url 'home' %}">
+                <span class="crop-brand-icon">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </span>
+
+                <span>
+                    CropCare
+                    <small>CROP RECOMMENDATION SYSTEM</small>
+                </span>
+            </a>
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#cropNavbar"
+                aria-controls="cropNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="cropNavbar">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                    {% if user.is_authenticated and user.is_staff %}
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}"
+                               href="{% url 'admin_dashboard' %}">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'predict' %}active{% endif %}"
+                               href="{% url 'predict' %}">
+                                <i class="fa-solid fa-flask"></i>
+                                Predictions
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+                               href="{% url 'profile' %}">
+                                <i class="fa-solid fa-user-gear"></i>
+                                Profile
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}"
+                               href="{% url 'change_password' %}">
+                                <i class="fa-solid fa-key"></i>
+                                Password
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-logout"
+                               href="{% url 'logout' %}">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <span class="nav-role-label">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                ADMIN
+                            </span>
+                        </li>
+
+                    {% elif user.is_authenticated %}
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'predict' %}active{% endif %}"
+                               href="{% url 'predict' %}">
+                                <i class="fa-solid fa-flask"></i>
+                                Predict
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'user_history' %}active{% endif %}"
+                               href="{% url 'user_history' %}">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                History
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+                               href="{% url 'profile' %}">
+                                <i class="fa-solid fa-user"></i>
+                                Profile
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}"
+                               href="{% url 'change_password' %}">
+                                <i class="fa-solid fa-key"></i>
+                                Password
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-logout"
+                               href="{% url 'logout' %}">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <span class="nav-role-label">
+                                <i class="fa-solid fa-circle-check"></i>
+                                MEMBER
+                            </span>
+                        </li>
+
+                    {% else %}
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+                               href="{% url 'home' %}">
+                                <i class="fa-solid fa-house"></i>
+                                Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}"
+                               href="{% url 'login' %}">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                                Login
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'signup' %}active{% endif %}"
+                               href="{% url 'signup' %}">
+                                <i class="fa-solid fa-user-plus"></i>
+                                Sign Up
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'admin_login' %}active{% endif %}"
+                               href="{% url 'admin_login' %}">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                Admin
+                            </a>
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN PAGE CONTENT -->
+    <main class="container crop-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="crop-footer">
+        <div class="container">
+            <div class="row align-items-center">
+
+                <div class="col-md-7">
+                    <div class="crop-footer-brand">
+                        <i class="fa-solid fa-wheat-awn"></i>
+                        CropCare
+                    </div>
+
+                    <p>
+                        Smarter crop decisions through soil and weather insights.
+                    </p>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="crop-footer-note">
+                        <i class="fa-solid fa-leaf"></i>
+                        Supporting informed and sustainable agriculture.
+                    </div>
+                </div>
+
+            </div>
+
+            <hr style="border-color: rgba(255,255,255,.14); margin: 20px 0 14px;">
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-2">
+                <small style="font-size: 11px;">
+                    &copy; {% now "Y" %} CropCare. All rights reserved.
+                </small>
+
+                <small style="font-size: 11px; color: rgba(255,255,255,.6);">
+                    Grow smarter. Grow better.
+                </small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JavaScript -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"
+        integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {% if messages %}
+        <script>
+            {% for m in messages %}
+                Swal.fire({
+                    icon: "{% if m.tags == 'error' %}error{% elif m.tags == 'warning' %}warning{% elif m.tags == 'success' %}success{% else %}info{% endif %}",
+                    title: "{{ m|escapejs }}",
+                    confirmButtonColor: "#247844"
+                });
+            {% endfor %}
+        </script>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>
